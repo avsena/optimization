@@ -76,6 +76,30 @@ class LookaheadHeuristicTests(unittest.TestCase):
         self.assertTrue(problem.is_complete)
         self.assertTrue(problem.validate())
 
+    def test_published_figure_2_examples(self) -> None:
+        # Configuração inicial descrita junto à Figura 2: pilhas do fundo
+        # para o topo; as três variantes aparecem nos painéis (i)-(iii).
+        initial_stacks = [[6, 7, 9], [1, 3, 4], [2, 8, 5]]
+        cases = (
+            (1, 9, 7),
+            (2, 9, 6),
+            (2, 5, 8),
+        )
+        for n, capacity, expected_relocations in cases:
+            with self.subTest(n=n, capacity=capacity):
+                problem = BlockRelocationProblem(
+                    initial_stacks, list(range(1, 10)), capacity
+                )
+                initial = BlockRelocationProblem(
+                    initial_stacks, list(range(1, 10)), capacity
+                )
+                result = solve_lookahead(problem, n)
+                self.assertEqual(result.relocation_count, expected_relocations)
+                self.assertEqual(problem.relocation_count, expected_relocations)
+                self.assertEqual(problem.retrieved, list(range(1, 10)))
+                self.assertTrue(problem.validate())
+                self.replay_and_validate(initial, result.moves)
+
     def test_nonpositive_or_noninteger_n_is_rejected(self) -> None:
         for n in (0, -1, 1.5, True):
             with self.subTest(n=n):
